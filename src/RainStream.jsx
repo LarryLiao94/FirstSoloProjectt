@@ -1,8 +1,17 @@
 import React, { useEffect, useState } from "react";
 const VALID_CHARS = "abcdefghijklmnouqrstuvwxyz1234567890";
-const STREAMMUTATION = .02;
+const STREAMMUTATION = 0.02;
 const minstream = 15;
 const maxstream = 50;
+const minStreamDelay = 0;
+const maxStreamDelay = 8000;
+const minInterval = 50;
+const maxInterval = 100;
+const MIN_INTERVAL_DELAY = 50;
+const MAX_INTERVAL_DELAY = 100;
+
+const MIN_DELAY_BETWEEN_STREAMS = 0;
+const MAX_DELAY_BETWEEN_STREAMS = 8000;
 
 const getRandRange = (min, max) =>
   Math.floor(Math.random() * (max - min)) + min;
@@ -15,33 +24,52 @@ const genRandStream = () =>
     .fill()
     .map((_) => getRandChar());
 
-const getMutatedStream = stream => {
-    const newStream = [];
-    for(let i = 1; i < stream.length; i++){
-        if(Math.random() < STREAMMUTATION){
-            newStream.push(getRandChar());
-        }
-        else{
-            newStream.push(stream[i]);
-        }
+const getMutatedStream = (stream) => {
+  const newStream = [];
+  for (let i = 1; i < stream.length; i++) {
+    if (Math.random() < STREAMMUTATION) {
+      newStream.push(getRandChar());
+    } else {
+      newStream.push(stream[i]);
     }
-    newStream.push(getRandChar());
-    return newStream;
-}
+  }
+  newStream.push(getRandChar());
+  return newStream;
+};
 
-const RainStream = props => {
-    const [stream, setStream] = useState(genRandStream());
-    const [topPadding, setTopPadding] = useState(stream.length * -50);
+const RainStream = (props) => {
+  const [stream, setStream] = useState(genRandStream());
+  const [topPadding, setTopPadding] = useState(stream.length * -50);
+  const [intervalDelay, setIntervalDelay] = useState(null);
+  useEffect(() => {
+		setTimeout(() => {
+			setIntervalDelay(getRandRange(MIN_INTERVAL_DELAY, MAX_INTERVAL_DELAY));
+		}, getRandRange(MIN_DELAY_BETWEEN_STREAMS, MAX_DELAY_BETWEEN_STREAMS));
+	}, []);
   useInterval(() => {
-      if(topPadding > window.innerHeight){
-          setTopPadding(0);
-      }
-      else{
-          setTopPadding(topPadding + 44);
-          setStream(stream => [...stream.slice(1, stream.length), getRandChar()])
-      }
-    setTopPadding(topPadding + 44);
-  }, 100);
+    if(!props.height) return;
+    if(!intervalDelay) return;
+    if (topPadding > window.innerHeight) {
+      // setTopPadding(0);
+      setStream([]);
+			const newStream = genRandStream();
+			setStream(newStream);
+			setTopPadding(newStream.length * -44);
+			setIntervalDelay(null);
+			setTimeout(
+				() =>
+					setIntervalDelay(
+						getRandRange(MIN_INTERVAL_DELAY, MAX_INTERVAL_DELAY),
+					),
+          getRandRange(MIN_DELAY_BETWEEN_STREAMS, MAX_DELAY_BETWEEN_STREAMS),
+			);
+    } else {
+      setTopPadding(topPadding + 44);
+      // setStream(getMutatedStream);
+    }
+    // setTopPadding(topPadding + 44);
+    setStream(getMutatedStream);
+  }, intervalDelay);
 
   return (
     <div
@@ -76,20 +104,20 @@ const RainStream = props => {
   );
 };
 
-const useInterval = callback => {
-    const savedCallback = React.useRef();
-  
-    React.useEffect(() => {
-      savedCallback.current = callback;
-    }, [callback]);
-  
-    React.useEffect(() => {
-      function tick() {
-        savedCallback.current();
-      }
-      let id = setInterval(tick, 100);
-      return () => clearInterval(id);
-    }, []);
-  };
+const useInterval = (callback) => {
+  const savedCallback = React.useRef();
+
+  React.useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  React.useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    let id = setInterval(tick, 100);
+    return () => clearInterval(id);
+  }, []);
+};
 
 export default RainStream;
