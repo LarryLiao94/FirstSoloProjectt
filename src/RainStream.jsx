@@ -3,10 +3,6 @@ const VALID_CHARS = "abcdefghijklmnouqrstuvwxyz1234567890";
 const STREAMMUTATION = 0.02;
 const minstream = 15;
 const maxstream = 50;
-const minStreamDelay = 0;
-const maxStreamDelay = 8000;
-const minInterval = 50;
-const maxInterval = 100;
 const MIN_INTERVAL_DELAY = 50;
 const MAX_INTERVAL_DELAY = 100;
 
@@ -42,27 +38,27 @@ const RainStream = (props) => {
   const [topPadding, setTopPadding] = useState(stream.length * -50);
   const [intervalDelay, setIntervalDelay] = useState(null);
   useEffect(() => {
-		setTimeout(() => {
-			setIntervalDelay(getRandRange(MIN_INTERVAL_DELAY, MAX_INTERVAL_DELAY));
-		}, getRandRange(MIN_DELAY_BETWEEN_STREAMS, MAX_DELAY_BETWEEN_STREAMS));
-	}, []);
+    setTimeout(() => {
+      setIntervalDelay(getRandRange(MIN_INTERVAL_DELAY, MAX_INTERVAL_DELAY));
+    }, getRandRange(MIN_DELAY_BETWEEN_STREAMS, MAX_DELAY_BETWEEN_STREAMS));
+  }, []);
   useInterval(() => {
-    if(!props.height) return;
-    if(!intervalDelay) return;
+    if (!props.height) return;
+    if (!intervalDelay) return;
     if (topPadding > window.innerHeight) {
       // setTopPadding(0);
       setStream([]);
-			const newStream = genRandStream();
-			setStream(newStream);
-			setTopPadding(newStream.length * -44);
-			setIntervalDelay(null);
-			setTimeout(
-				() =>
-					setIntervalDelay(
-						getRandRange(MIN_INTERVAL_DELAY, MAX_INTERVAL_DELAY),
-					),
-          getRandRange(MIN_DELAY_BETWEEN_STREAMS, MAX_DELAY_BETWEEN_STREAMS),
-			);
+      const newStream = genRandStream();
+      setStream(newStream);
+      setTopPadding(newStream.length * -44);
+      setIntervalDelay(null);
+      setTimeout(
+        () =>
+          setIntervalDelay(
+            getRandRange(MIN_INTERVAL_DELAY, MAX_INTERVAL_DELAY)
+          ),
+        getRandRange(MIN_DELAY_BETWEEN_STREAMS, MAX_DELAY_BETWEEN_STREAMS)
+      );
     } else {
       setTopPadding(topPadding + 44);
       // setStream(getMutatedStream);
